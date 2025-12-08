@@ -5,8 +5,8 @@ class KrakenCli < Formula
   homepage "https://github.com/octoenergy/kraken-cli/"
 
   url "git@github.com:octoenergy/kraken-cli.git", using: :git,
-    tag: "0.34.2"
-  version "0.34.2"
+    tag: "0.34.1"
+  version "0.34.1"
   license "UNLICENSED"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
@@ -22,6 +22,12 @@ class KrakenCli < Formula
   depends_on "k9s" => :recommended
   depends_on "kubectx" => :recommended
   depends_on "stern" => :optional
+
+  livecheck do
+    url :stable
+    strategy :git
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
+  end
 
   def install
     venv = virtualenv_create(libexec)
