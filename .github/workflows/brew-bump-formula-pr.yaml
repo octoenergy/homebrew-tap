@@ -10,13 +10,13 @@ permissions:
 
 jobs:
     bump:
-        runs-on: ubuntu-latest
+        runs-on: macos-latest
         steps:
-            - name: Set up Homebrew
-              uses: Homebrew/actions/setup-homebrew@master
+            - name: Checkout
+              uses: actions/checkout@v4
 
-            - name: Tap this repo
-              run: brew tap octoenergy/ktl ${{ github.server_url }}/${{ github.repository }}
+            - name: Tap local repo
+              run: brew tap octoenergy/ktl .
 
             - name: Bump formula if outdated
               env:
