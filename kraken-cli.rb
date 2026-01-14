@@ -4,9 +4,9 @@ class KrakenCli < Formula
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
 
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.35.0/kraken_cli-0.35.0.tar.gz"
-  sha256 "2bd5c4a9e7ca12054916ddc4d952d0c5cdec3a4a12cdb35df569388134da3ba9"
-  version "0.35.0"
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.40.3/kraken_cli-0.40.3.tar.gz"
+  sha256 "2df12f6392d0c9a7a8916f129a721496e111206769e1ec62dc0111779fcf5cb4"
+  version "0.40.3"
   license "UNLICENSED"
 
   depends_on "python@3.13"
