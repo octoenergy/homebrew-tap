@@ -47,8 +47,6 @@ jobs:
             echo "Pipeline Git Revision: << pipeline.git.revision >>"
             echo "Pipeline Number: << pipeline.number >>"
             echo "Pipeline Project Type: << pipeline.project.type >>"
-            echo "Pipeline Project Username: << pipeline.project.username >>"
-            echo "Pipeline Project Reponame: << pipeline.project.reponame >>"
 workflows:
   test:
     jobs:
