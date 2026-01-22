@@ -50,7 +50,7 @@ jobs:
 workflows:
   test:
     jobs:
-      - test-run
-    filters:
-      tags:
-        only: /.*/
+      - test-run:
+          filters:
+            tags:
+              only: /.*/
