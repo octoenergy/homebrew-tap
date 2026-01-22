@@ -13,20 +13,21 @@ jobs:
       - run:
           name: Test for nexus package presence
           command: |
-            tag="<< pipeline.trigger_parameters.github_app.ref >>"
+            tag="<< pipeline.trigger_parameters.github_app.ref >>"\
+            echo "Waiting for package to be published..."
+            sleep 30
             for i in {1..20}; do
-              curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl'
-              if [ $? -eq 0 ]; then
+              pkg_url=$(curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl')
+              if [ -n "${pkg_url}" ]; then
+                echo "Package found: ${pkg_url}"
                 break
               fi
-                echo "Waiting for package to be published..."
-              sleep 30
+              sleep 20
             done
-            if [ $? -ne 0 ]; then
-              echo "Package not found after 10 attempts"
+            if [ -z "${pkg_url}" ]; then
+              echo "Package not found after 20 attempts"
               exit 1
             fi
-            echo "Package found"
       - run:
           name: Template homebrew formula
           command: |
