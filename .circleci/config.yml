@@ -1,0 +1,60 @@
+---
+version: 2.1
+
+orbs:
+  ktl-nexus: krakentech/ktl-nexus@4
+  github-cli: circleci/github-cli@1.2.0
+# commands:
+# setup:
+#   steps:
+#     - ktl-nexus/login
+#     - run:
+#         name: Create virtualenv
+#         command: |
+#           python -m venv ~/circleci/venv/
+#           echo "source ~/circleci/venv/bin/activate" >> $BASH_ENV
+#           echo "export UV_PROJECT_ENVIRONMENT=~/circleci/venv/" >> $BASH_ENV
+#     - run:
+#         name: Install uv
+#         command: pip install uv
+#     - ktl-nexus/configure_uv
+
+# template-formula:
+#   steps:
+#     - setup
+#     - run: Get tag name from
+#     - run:
+#         name: Wait for package to be published
+#         command: |
+#           for i in {1..10}; do
+#             curl
+#             sleep 20
+#           done
+#     - run:
+#         name: Template formula
+#         command: |
+#           kraken-cli template formula ${{ env.PACKAGE_NAME }}
+
+---
+version: 2.1
+parameters:
+  tag:
+    type: string
+    default: ""
+orbs:
+  ktl-nexus: krakentech/ktl-nexus@4
+  github-cli: circleci/github-cli@2
+jobs:
+  test-run:
+    executor:
+      name: ktl-nexus/default
+      version: "3.13"
+    steps:
+      - run:
+          name: DEBUG print the entire pipeline context
+          command: |
+            echo "<< pipeline.context >>"
+workflows:
+  test:
+    jobs:
+      - test-run
