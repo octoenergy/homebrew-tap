@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Test for nexus package presence
           command: |
-            tag="<< pipeline.trigger_parameters.github_app.ref >>"\
+            tag="<< pipeline.trigger_parameters.github_app.ref >>"
             echo "Waiting for package to be published..."
             sleep 30
             for i in {1..20}; do
