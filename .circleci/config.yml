@@ -15,7 +15,7 @@ jobs:
           command: |
             tag="<< pipeline.trigger_parameters.github_app.ref >>"
             for i in {1..20}; do
-              curl -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl'
+              curl --key ~/certificates/ktl-ca-circleci-private.key --cert ~/certificates/ktl-ca-circleci-certificate.crt --cacert ~/certificates/ktl-ca-certificate-chain.crt -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl'
               if [ $? -eq 0 ]; then
                 break
               fi
@@ -31,7 +31,7 @@ jobs:
           name: Template homebrew formula
           command: |
             tag="<< pipeline.trigger_parameters.github_app.ref >>"
-            pkg_url=$(curl -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl')
+            pkg_url=$(curl --key ~/certificates/ktl-ca-circleci-private.key --cert ~/certificates/ktl-ca-circleci-certificate.crt --cacert ~/certificates/ktl-ca-certificate-chain.crt -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl')
             echo "pkg_url: ${pkg_url}"
 workflows:
   test:
