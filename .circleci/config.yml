@@ -34,16 +34,6 @@ orbs:
 #         name: Template formula
 #         command: |
 #           kraken-cli template formula ${{ env.PACKAGE_NAME }}
-
----
-version: 2.1
-parameters:
-  tag:
-    type: string
-    default: ""
-orbs:
-  ktl-nexus: krakentech/ktl-nexus@4
-  github-cli: circleci/github-cli@2
 jobs:
   test-run:
     executor:
