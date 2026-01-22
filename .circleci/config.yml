@@ -58,3 +58,6 @@ workflows:
   test:
     jobs:
       - test-run
+    filters:
+      tags:
+        only: /.*/
