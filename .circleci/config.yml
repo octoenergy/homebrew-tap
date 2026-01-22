@@ -42,7 +42,13 @@ jobs:
       - run:
           name: DEBUG print the entire pipeline context
           command: |
-            echo "<< pipeline.context >>"
+            echo "Pipeline Git Branch: << pipeline.git.branch >>"
+            echo "Pipeline Git Tag: << pipeline.git.tag >>"
+            echo "Pipeline Git Revision: << pipeline.git.revision >>"
+            echo "Pipeline Number: << pipeline.number >>"
+            echo "Pipeline Project Type: << pipeline.project.type >>"
+            echo "Pipeline Project Username: << pipeline.project.username >>"
+            echo "Pipeline Project Reponame: << pipeline.project.reponame >>"
 workflows:
   test:
     jobs:
