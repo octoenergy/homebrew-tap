@@ -9,6 +9,7 @@ jobs:
       name: ktl-nexus/default
       version: "3.13"
     steps:
+      - ktl-nexus/login
       - run:
           name: Test for nexus package presence
           command: |
@@ -36,6 +37,7 @@ workflows:
   test:
     jobs:
       - test-run:
+          context: KTL_NEXUS
           filters:
             tags:
               only: /.*/
