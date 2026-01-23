@@ -54,7 +54,8 @@ class KrakenCli < Formula
     bin.install_symlink (venv.root/"bin/kraken")
   end
 
-# We can't modify $HOME in post_install and install runs in a
+  def post_install
+    # We can't modify $HOME in post_install and install runs in a
     # sandbox, so this is a hack since the metadata services' cache
     # is created when the metadata client is created which can't be
     # modified right now.
@@ -62,6 +63,7 @@ class KrakenCli < Formula
 
     # Generate shell completions
     generate_completions_from_executable(bin/"kraken", "completion")
+  end
 
   def caveats
     <<~EOS
