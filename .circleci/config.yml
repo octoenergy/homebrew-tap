@@ -8,7 +8,7 @@ parameters:
 
 orbs:
   ktl-nexus: krakentech/ktl-nexus@4
-  github-cli: circleci/github-cli@2.7.2
+  gh: circleci/github-cli@2.7.2
 jobs:
   test-run:
     executor:
