@@ -30,7 +30,7 @@ jobs:
             echo "Waiting for package to be published..."
             sleep 30
             for i in {1..20}; do
-              pkg_url=$(curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl')
+              pkg_url=$(curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl')
               if [ -n "${pkg_url}" ]; then
                 echo "Package found: ${pkg_url}"
                 break
@@ -53,13 +53,13 @@ jobs:
 
             curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" > nexus_response.json
 
-            pkg_url=$(jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl' nexus_response.json)
+            pkg_url=$(jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl' nexus_response.json)
             echo "pkg_url: ${pkg_url}"
 
-            pkg_sha256=$(jq --raw-output '.items[] | select(.version=="${tag}") | .assets[] | select(.contentType=="application/x-gzip") | .checksum.sha256' nexus_response.json)
+            pkg_sha256=$(jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .assets[] | select(.contentType=="application/x-gzip") | .checksum.sha256' nexus_response.json)
             echo "pkg_sha256: ${pkg_sha256}"
 
-            pkg_version=$(jq --raw-output '.items[] | select(.version=="${tag}") | .version' nexus_response.json)
+            pkg_version=$(jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .version' nexus_response.json)
             echo "pkg_version: ${pkg_version}"
 
             # Template the formula file
