@@ -30,12 +30,16 @@ class KrakenCli < Formula
     # Install uv using pre-built wheels
     system venv.root/"bin/python3", "-m", "pip", "install", "--prefer-binary", "uv"
     
+    verbose = ""
     if ENV["HOMEBREW_CIRCLECI"]
+      # Set required UV env vars for mutual auth to Nexus
+      # These are set in the CircleCI config
       ENV["UV_NO_CONFIG"] = ENV["HOMEBREW_UV_NO_CONFIG"]
       ENV["UV_NATIVE_TLS"] = ENV["HOMEBREW_UV_NATIVE_TLS"]
       ENV["UV_INDEX_URL"] = ENV["HOMEBREW_UV_INDEX_URL"]
       ENV["UV_EXTRA_INDEX_URL"] = ENV["HOMEBREW_UV_EXTRA_INDEX_URL"]
       ENV["SSL_CLIENT_CERT"] = ENV["HOMEBREW_SSL_CLIENT_CERT"]
+      verbose = "--verbose"
     end
     
     # Change to buildpath where the tarball is extracted
@@ -50,10 +54,14 @@ class KrakenCli < Formula
     bin.install_symlink (venv.root/"bin/kraken")
   end
 
-  def post_install
-    ENV["_SKIP_METADATA_CACHE"] = "1"   
+# We can't modify $HOME in post_install and install runs in a
+    # sandbox, so this is a hack since the metadata services' cache
+    # is created when the metadata client is created which can't be
+    # modified right now.
+    ENV["_SKIP_METADATA_CACHE"] = "1"
+
+    # Generate shell completions
     generate_completions_from_executable(bin/"kraken", "completion")
-  end
 
   def caveats
     <<~EOS
