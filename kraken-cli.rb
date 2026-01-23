@@ -1,10 +1,23 @@
+class MtlsCurlDownloadStrategy < CurlDownloadStrategy
+  def curl_args(*)
+    args = super
+    if ENV["HOMEBREW_CIRCLECI"]
+      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] || File.expand_path("~/certificates/ktl-ca-circleci.pem")
+      if File.exist?(cert_path)
+        args += ["--key", cert_path, "--cert", cert_path]
+      end
+    end
+    args
+  end
+end
+
 class KrakenCli < Formula
   include Language::Python::Virtualenv
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
 
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.40.3/kraken_cli-0.40.3.tar.gz"
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.40.3/kraken_cli-0.40.3.tar.gz", using: MtlsCurlDownloadStrategy
   sha256 "2df12f6392d0c9a7a8916f129a721496e111206769e1ec62dc0111779fcf5cb4"
   version "0.40.3"
   license "UNLICENSED"
@@ -21,20 +34,6 @@ class KrakenCli < Formula
   depends_on "k9s" => :recommended
   depends_on "kubectx" => :recommended
   depends_on "stern" => :optional
-
-  def fetch
-    # Only use mTLS in CircleCI; end users have cert in truststore
-    if ENV["HOMEBREW_CIRCLECI"]
-      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] || File.expand_path("~/certificates/ktl-ca-circleci.pem")
-      ohai "Downloading #{url} with mTLS using certificate: #{cert_path}"
-      downloader = downloader_for_url(url)
-      downloader.cached_location.parent.mkpath
-      system "curl", "--key", cert_path, "--cert", cert_path, "--location", "--output", downloader.cached_location.to_s, url
-      downloader.cached_location.verify_checksum(sha256) if sha256
-    else
-      super
-    end
-  end
 
   def install
     venv = virtualenv_create(libexec)
