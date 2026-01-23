@@ -166,8 +166,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+  test-formula-macos:
+    when: << pipeline.git.branch >> != ""
+    jobs:
       - test-formula-macos:
           context: KTL_NEXUS
-          filters:
-            tags:
-              only: /.*/
