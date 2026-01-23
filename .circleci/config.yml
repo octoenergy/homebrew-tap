@@ -31,8 +31,8 @@ jobs:
       name: ktl-nexus/default
       version: "3.13"
     steps:
+      - setup
       - checkout
-      - ktl-nexus/login
       - gh/install
       - run:
           name: Test for nexus package presence
@@ -111,9 +111,8 @@ jobs:
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
       COMMIT_HASH: <<pipeline.git.revision>>
     steps:
-      - checkout:
-          method: full
       - setup
+      - checkout
       - run:
           name: Configure environment variables for Homebrew
           command: |

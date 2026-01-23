@@ -22,6 +22,20 @@ class KrakenCli < Formula
   depends_on "kubectx" => :recommended
   depends_on "stern" => :optional
 
+  def fetch
+    # Only use mTLS in CircleCI; end users have cert in truststore
+    if ENV["HOMEBREW_CIRCLECI"]
+      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] || File.expand_path("~/certificates/ktl-ca-circleci.pem")
+      ohai "Downloading #{url} with mTLS using certificate: #{cert_path}"
+      downloader = downloader_for_url(url)
+      downloader.cached_location.parent.mkpath
+      system "curl", "--key", cert_path, "--cert", cert_path, "--location", "--output", downloader.cached_location.to_s, url
+      downloader.cached_location.verify_checksum(sha256) if sha256
+    else
+      super
+    end
+  end
+
   def install
     venv = virtualenv_create(libexec)
     
