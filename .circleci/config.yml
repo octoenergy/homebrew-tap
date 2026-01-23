@@ -165,6 +165,8 @@ workflows:
       - homebrew-bump-formula:
           context: KTL_NEXUS
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /.*/
   test-formula-macos:
