@@ -24,26 +24,6 @@ commands:
           name: Install uv
           command: pip install uv
       - ktl-nexus/configure_uv
-  generate_formula:
-    steps:
-      - run:
-          name: Generate Formula
-          command: |-
-            uv run invoke generate-formula --version $COMMIT_HASH \
-            --version-type commit \
-            --location="file://$PWD" \
-            --skip-deps
-      - run:
-          command: cat kraken-cli.rb
-  test_commit_formula:
-    steps:
-      - run:
-          name: Commit formula
-          command: |
-            git config --global user.email "dont@care.com"
-            git config --global user.name "Nobody"
-            git add kraken-cli.rb
-            git commit -m "Add new formula"
 
 jobs:
   homebrew-bump-formula:
@@ -134,8 +114,6 @@ jobs:
       - checkout:
           method: full
       - setup
-      - generate_formula
-      - test_commit_formula
       - run:
           name: Configure environment variables for Homebrew
           command: |
