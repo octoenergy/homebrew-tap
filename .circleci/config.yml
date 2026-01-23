@@ -83,7 +83,8 @@ jobs:
             git push origin bump-kraken-cli-formula-${pkg_version}
 
             # Create a pull request
-            gh pr create --title "Bump kraken-cli formula to ${pkg_version}" --body "Bump kraken-cli formula to ${pkg_version}\nkraken-cli release: https://github.com/octoenergy/kraken-cli/releases/tag/${pkg_version}"
+            pr_body=$(printf "Bump kraken-cli formula to %s\nkraken-cli release: https://github.com/octoenergy/kraken-cli/releases/tag/%s" "${pkg_version}" "${pkg_version}")
+            gh pr create --title "Bump kraken-cli formula to ${pkg_version}" --body "${pr_body}"
 
 workflows:
   test:
