@@ -1,10 +1,23 @@
+class MtlsCurlDownloadStrategy < CurlDownloadStrategy
+  def curl_args(*)
+    args = super
+    if ENV["HOMEBREW_CIRCLECI"]
+      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] || File.expand_path("~/certificates/ktl-ca-circleci.pem")
+      if File.exist?(cert_path)
+        args += ["--key", cert_path, "--cert", cert_path]
+      end
+    end
+    args
+  end
+end
+
 class KrakenCli < Formula
   include Language::Python::Virtualenv
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
 
-  url "{{ pkg_url }}"
+  url "{{ pkg_url }}", using: MtlsCurlDownloadStrategy
   sha256 "{{ pkg_sha256 }}"
   version "{{ pkg_version }}"
   license "UNLICENSED"
@@ -30,12 +43,16 @@ class KrakenCli < Formula
     # Install uv using pre-built wheels
     system venv.root/"bin/python3", "-m", "pip", "install", "--prefer-binary", "uv"
     
+    verbose = ""
     if ENV["HOMEBREW_CIRCLECI"]
+      # Set required UV env vars for mutual auth to Nexus
+      # These are set in the CircleCI config
       ENV["UV_NO_CONFIG"] = ENV["HOMEBREW_UV_NO_CONFIG"]
       ENV["UV_NATIVE_TLS"] = ENV["HOMEBREW_UV_NATIVE_TLS"]
       ENV["UV_INDEX_URL"] = ENV["HOMEBREW_UV_INDEX_URL"]
       ENV["UV_EXTRA_INDEX_URL"] = ENV["HOMEBREW_UV_EXTRA_INDEX_URL"]
       ENV["SSL_CLIENT_CERT"] = ENV["HOMEBREW_SSL_CLIENT_CERT"]
+      verbose = "--verbose"
     end
     
     # Change to buildpath where the tarball is extracted
@@ -51,7 +68,13 @@ class KrakenCli < Formula
   end
 
   def post_install
-    ENV["_SKIP_METADATA_CACHE"] = "1"   
+    # We can't modify $HOME in post_install and install runs in a
+    # sandbox, so this is a hack since the metadata services' cache
+    # is created when the metadata client is created which can't be
+    # modified right now.
+    ENV["_SKIP_METADATA_CACHE"] = "1"
+
+    # Generate shell completions
     generate_completions_from_executable(bin/"kraken", "completion")
   end
 
