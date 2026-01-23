@@ -9,6 +9,42 @@ parameters:
 orbs:
   ktl-nexus: krakentech/ktl-nexus@4
   gh: circleci/github-cli@2.7.2
+
+commands:
+  setup:
+    steps:
+      - ktl-nexus/login
+      - run:
+          name: Create virtualenv
+          command: |
+            python -m venv ~/circleci/venv/
+            echo "source ~/circleci/venv/bin/activate" >> $BASH_ENV
+            echo "export UV_PROJECT_ENVIRONMENT=~/circleci/venv/" >> $BASH_ENV
+      - run:
+          name: Install uv
+          command: pip install uv
+      - ktl-nexus/configure_uv
+  generate_formula:
+    steps:
+      - run:
+          name: Generate Formula
+          command: |-
+            uv run invoke generate-formula --version $COMMIT_HASH \
+            --version-type commit \
+            --location="file://$PWD" \
+            --skip-deps
+      - run:
+          command: cat kraken-cli.rb
+  test_commit_formula:
+    steps:
+      - run:
+          name: Commit formula
+          command: |
+            git config --global user.email "dont@care.com"
+            git config --global user.name "Nobody"
+            git add kraken-cli.rb
+            git commit -m "Add new formula"
+
 jobs:
   homebrew-bump-formula:
     executor:
@@ -83,13 +119,54 @@ jobs:
             git push origin bump-kraken-cli-formula-${pkg_version}
 
             # Create a pull request
-            pr_body=$(printf "Bump kraken-cli formula to %s\nkraken-cli release: https://github.com/octoenergy/kraken-cli/releases/tag/%s" "${pkg_version}" "${pkg_version}")
+            pr_body=$(printf "Bump kraken-cli formula to %s\n\nkraken-cli release: https://github.com/octoenergy/kraken-cli/releases/tag/%s" "${pkg_version}" "${pkg_version}")
             gh pr create --title "Bump kraken-cli formula to ${pkg_version}" --body "${pr_body}"
-
+  test-formula-macos:
+    executor:
+      name: ktl-nexus/macos
+      xcode_version: 16.4.0 # MacOS 15.3.2
+    environment:
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
+      COMMIT_HASH: <<pipeline.git.revision>>
+    steps:
+      - checkout:
+          method: full
+      - setup
+      - generate_formula
+      - test_commit_formula
+      - run:
+          name: Configure environment variables for Homebrew
+          command: |
+            # Configure uv for mutual authentication
+            echo 'export HOMEBREW_SSL_CLIENT_CERT=$SSL_CLIENT_CERT' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_INDEX_URL=$UV_INDEX_URL' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_EXTRA_INDEX_URL=$UV_EXTRA_INDEX_URL' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_NO_CONFIG=true' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_NATIVE_TLS=$UV_NATIVE_TLS' | tee -a $BASH_ENV
+            # Parse uv.lock to ensure external Nexus url is used
+            echo 'export HOMEBREW_CIRCLECI=$CIRCLECI' | tee -a $BASH_ENV
+      - run:
+          name: Install Formula
+          command: |
+            brew install --overwrite --force --verbose --formula ./kraken-cli.rb
+      - run:
+          name: Smoke test
+          command: |
+            set -x
+            which kraken
+            kraken --version
+            kraken gen-fernet-key
 workflows:
-  test:
+  homebrew-bump-formula:
     jobs:
       - homebrew-bump-formula:
+          context: KTL_NEXUS
+          filters:
+            tags:
+              only: /.*/
+      - test-formula-macos:
           context: KTL_NEXUS
           filters:
             tags:
