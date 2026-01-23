@@ -158,6 +158,7 @@ jobs:
             which kraken
             kraken --version
             kraken gen-fernet-key
+
 workflows:
   homebrew-bump-formula:
     jobs:
