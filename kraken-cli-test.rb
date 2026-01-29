@@ -6,7 +6,7 @@ class KrakenCliTest < Formula
 
   url "git@github.com:octoenergy/kraken-cli.git", using: :git,
     tag: "main"
-  version "main"
+  version "1.0.0"
   license "UNLICENSED"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
