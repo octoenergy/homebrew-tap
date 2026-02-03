@@ -1,0 +1,6 @@
+---
+ownership_rules:
+  global_allowed_users: [octo-ci]
+  directory_matching_rules:
+    - name: Kraken CLI formula update
+      path: kraken-cli.rb
