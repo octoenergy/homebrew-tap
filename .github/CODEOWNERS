@@ -1,0 +1,4 @@
+* @octoenergy/platform
+
+# No approval needed for formula files (e.g. automated bumps)
+*.rb
