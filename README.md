@@ -1,17 +1,32 @@
-# homebrew-ktl
+# Kraken Homebrew Tap
 
-homebrew tap for kraken tech
+Official Homebrew tap for Kraken Technologies tooling.
 
-## Installation instructions
+## What is this?
+
+This tap provides Homebrew formulae for Kraken Technologies command-line tools and utilities.
+
+## Installation
+
+Add this tap to your Homebrew installation:
 
 ```shell
-brew tap octoenergy/homebrew-ktl git@github.com:octoenergy/homebrew-ktl.git
-brew install <ktl package>
+brew tap octoenergy/tap
 ```
 
-## Updating packages
+Then install a package:
 
-Packages that use this tap will need the following procedure to get updates:
+```shell
+brew install <package>
+```
+
+## Available Formulae
+
+- **kraken-cli**: CLI tool to help Kraken developers work with AWS, Kubernetes, and other KTL services
+
+## Updating
+
+Keep your installed packages up to date:
 
 ```shell
 brew update
