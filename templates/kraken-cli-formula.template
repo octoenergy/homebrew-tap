@@ -65,6 +65,7 @@ class KrakenCli < Formula
     system venv.root/"bin/python3", "-m", "uv", "pip", "install", buildpath
     
     bin.install_symlink (venv.root/"bin/kraken")
+    bin.install_symlink venv.root/"bin/kraken-credentials"
   end
 
   def post_install
