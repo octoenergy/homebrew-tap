@@ -1,12 +1,18 @@
+require "net/http"
+require "uri"
+
 class CustomCurlDownloadStrategy < CurlDownloadStrategy
-  ZSCALER_CHECK_URL = "https://ismyzscalerconnected.ktl.net".freeze
+  ZSCALER_CHECK_URL = URI("https://ismyzscalerconnected.ktl.net").freeze
 
   def fetch(timeout: nil)
-      zscaler_ok = begin
-        IO.popen(["curl", "-s", "-f", "--connect-timeout", "2", "--max-time", "2", ZSCALER_CHECK_URL], err: File::NULL, &:read).strip.downcase
-      rescue
-        ""
+    zscaler_ok = begin
+      uri = ZSCALER_CHECK_URL
+      Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, open_timeout: 2, read_timeout: 2) do |http|
+        http.get(uri.request_uri).body.strip.downcase
       end
+    rescue
+      ""
+    end
       unless zscaler_ok.to_s.include?("yes")
         raise <<~EOS
           Zscaler does not appear to be connected.
