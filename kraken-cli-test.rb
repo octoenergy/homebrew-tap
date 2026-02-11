@@ -1,4 +1,24 @@
-class MtlsCurlDownloadStrategy < CurlDownloadStrategy
+class CustomCurlDownloadStrategy < CurlDownloadStrategy
+  ZSCALER_CHECK_URL = "https://ismyzscalerconnected.ktl.net".freeze
+
+  def fetch(timeout: nil)
+      zscaler_ok = begin
+        IO.popen(["curl", "-s", "-f", "--connect-timeout", "2", "--max-time", "2", ZSCALER_CHECK_URL], err: File::NULL, &:read).strip.downcase
+      rescue
+        ""
+      end
+      unless zscaler_ok.to_s.include?("yes")
+        raise <<~EOS
+          Zscaler does not appear to be connected.
+          
+          Please connect to Zscaler Private Access and try again.
+          
+          Check your status at: #{ZSCALER_CHECK_URL}
+        EOS
+      end
+    super
+  end
+
   def curl_args(*)
     args = super
     if ENV["HOMEBREW_CIRCLECI"]
@@ -15,7 +35,7 @@ class KrakenCliTest < Formula
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.3/kraken_cli-0.42.3.tar.gz", using: MtlsCurlDownloadStrategy
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz", using: CustomCurlDownloadStrategy
   sha256 "26f4fe2faaa207e4c516e081054262b38c5f3eb4ecdf0085cab97377047af03a"
 
   depends_on "aws-iam-authenticator"
