@@ -16,9 +16,9 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
       unless zscaler_ok.to_s.include?("yes")
         raise <<~EOS
           Zscaler does not appear to be connected.
-          
+
           Please connect to Zscaler Private Access and try again.
-          
+
           Check your status at: #{ZSCALER_CHECK_URL}
         EOS
       end
@@ -43,6 +43,7 @@ class KrakenCliTest < Formula
   homepage "https://github.com/octoenergy/kraken-cli/"
   url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz", using: CustomCurlDownloadStrategy
   sha256 "26f4fe2faaa207e4c516e081054262b38c5f3eb4ecdf0085cab97377047af03a"
+  head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
   depends_on "aws-iam-authenticator"
   depends_on "awscli@2"
