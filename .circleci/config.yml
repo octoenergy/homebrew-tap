@@ -101,6 +101,10 @@ jobs:
             # Create a pull request
             pr_body=$(printf "Bump kraken-cli formula to %s\n\nkraken-cli release: https://github.com/octoenergy/kraken-cli/releases/tag/%s" "${pkg_version}" "${pkg_version}")
             gh pr create --title "Bump kraken-cli formula to ${pkg_version}" --body "${pr_body}"
+            pr_link=$(gh pr view --json url --jq '.url')
+            # enable auto merge
+            gh pr merge "${pr_link}" --auto --squash
+
   test-formula-macos:
     executor:
       name: ktl-nexus/macos
