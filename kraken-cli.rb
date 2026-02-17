@@ -17,11 +17,10 @@ class KrakenCli < Formula
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
 
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz", using: MtlsCurlDownloadStrategy
-  sha256 "7b0ce9fd86a6340c45d33bd10f26fbf8036bc93231bca87b4abb9438f53fe921"
-  version "0.42.4"
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.43.0/kraken_cli-0.43.0.tar.gz", using: MtlsCurlDownloadStrategy
+  sha256 "2ad526bf45f2281b40c8c96674d8679a96554002d47bfcfd124a3f7b7a701bcc"
+  version "0.43.0"
   license "UNLICENSED"
-  head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
   depends_on "python@3.13"
   depends_on "cryptography"
@@ -38,12 +37,12 @@ class KrakenCli < Formula
 
   def install
     venv = virtualenv_create(libexec)
-
+    
     ENV["UV_PROJECT_ENVIRONMENT"] = venv.root
-
+    
     # Install uv using pre-built wheels
     system venv.root/"bin/python3", "-m", "pip", "install", "--prefer-binary", "uv"
-
+    
     verbose = ""
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
@@ -55,16 +54,16 @@ class KrakenCli < Formula
       ENV["SSL_CLIENT_CERT"] = ENV["HOMEBREW_SSL_CLIENT_CERT"]
       verbose = "--verbose"
     end
-
+    
     # Change to buildpath where the tarball is extracted
     # Use uv sync to install dependencies from pyproject.toml
     cd buildpath do
       system venv.root/"bin/python3", "-m", "uv", "sync", "--no-dev"
     end
-
+    
     # Install the main package from the tarball
     system venv.root/"bin/python3", "-m", "uv", "pip", "install", buildpath
-
+    
     bin.install_symlink (venv.root/"bin/kraken")
     bin.install_symlink venv.root/"bin/kraken-credentials"
   end
