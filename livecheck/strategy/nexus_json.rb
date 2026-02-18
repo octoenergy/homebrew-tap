@@ -66,7 +66,7 @@ module Homebrew
           match_data[:cached] = true if content
           return match_data if url.blank?
 
-          unless content
+          unless match_data[:cached]
             env_cert = ENV["HOMEBREW_SSL_CLIENT_CERT"].to_s.strip
             if env_cert.empty?
               content, error = fetch_without_mtls(url)
