@@ -22,8 +22,6 @@ module Homebrew
 
         NICE_NAME = "Nexus JSON"
 
-        PRIORITY = 0
-
         URL_MATCH_REGEX = %r{^https?://}i
 
         MAX_REDIRECTS = 5
