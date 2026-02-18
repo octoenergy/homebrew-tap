@@ -5,9 +5,8 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
   ZSCALER_CHECK_URL = URI("https://ismyzscalerconnected.ktl.net").freeze
 
   def fetch(timeout: nil)
-    if ENV["HOMEBREW_CIRCLECI"]
-      return super
-    end
+    return super if ENV["HOMEBREW_CIRCLECI"]
+
     zscaler_ok = begin
       uri = ZSCALER_CHECK_URL
       Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, open_timeout: 2, read_timeout: 2) do |http|
@@ -16,15 +15,16 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
     rescue
       ""
     end
-      unless zscaler_ok.to_s.include?("yes")
-        raise <<~EOS
-          Zscaler does not appear to be connected.
+    unless zscaler_ok.to_s.include?("yes")
+      raise <<~EOS
+        Zscaler does not appear to be connected.
 
-          Please connect to Zscaler Private Access and try again.
+        Please connect to Zscaler Private Access and try again.
 
-          Check your status at: #{ZSCALER_CHECK_URL}
-        EOS
-      end
+        Check your status at: #{ZSCALER_CHECK_URL}
+      EOS
+    end
+
     super
   end
 
