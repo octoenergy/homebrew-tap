@@ -7,23 +7,26 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
   def fetch(timeout: nil)
     return super if ENV["HOMEBREW_CIRCLECI"]
 
-    zscaler_ok = begin
-      uri = ZSCALER_CHECK_URL
-      Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, open_timeout: 2, read_timeout: 2) do |http|
-        http.get(uri.request_uri).body.strip.downcase
+    zscaler_ok =
+      begin
+        uri = ZSCALER_CHECK_URL
+        Net::HTTP.start(
+          uri.hostname,
+          uri.port,
+          use_ssl: true,
+          open_timeout: 2,
+          read_timeout: 2
+        ) { |http| http.get(uri.request_uri).body.strip.downcase }
+      rescue StandardError
+        ""
       end
-    rescue
-      ""
-    end
-    unless zscaler_ok.to_s.include?("yes")
-      raise <<~EOS
+    raise <<~EOS unless zscaler_ok.to_s.include?("yes")
         Zscaler does not appear to be connected.
 
         Please connect to Zscaler Private Access and try again.
 
         Check your status at: #{ZSCALER_CHECK_URL}
       EOS
-    end
 
     super
   end
@@ -31,9 +34,12 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
   def curl_args(*)
     args = super
     if ENV["HOMEBREW_CIRCLECI"]
-      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
-                  File.expand_path("~/certificates/ktl-ca-circleci.pem")
-      args += ["--key", cert_path, "--cert", cert_path] if File.exist?(cert_path)
+      cert_path =
+        ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
+          File.expand_path("~/certificates/ktl-ca-circleci.pem")
+      args += ["--key", cert_path, "--cert", cert_path] if File.exist?(
+        cert_path
+      )
     end
     args
   end
@@ -44,9 +50,16 @@ class KrakenCliTest < Formula
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz", using: CustomCurlDownloadStrategy
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz",
+      using: CustomCurlDownloadStrategy
   sha256 "7b0ce9fd86a6340c45d33bd10f26fbf8036bc93231bca87b4abb9438f53fe921"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
+
+  livecheck do
+    url "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli"
+    regex(/"version"\s*:\s*"(\d+(?:\.\d+)+)"/)
+    strategy :page_match
+  end
 
   depends_on "aws-iam-authenticator"
   depends_on "awscli@2"
@@ -67,7 +80,12 @@ class KrakenCliTest < Formula
     ENV["UV_PROJECT_ENVIRONMENT"] = venv.root
 
     # Install uv using pre-built wheels
-    system venv.root/"bin/python3", "-m", "pip", "install", "--prefer-binary", "uv"
+    system venv.root / "bin/python3",
+           "-m",
+           "pip",
+           "install",
+           "--prefer-binary",
+           "uv"
 
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
@@ -82,14 +100,14 @@ class KrakenCliTest < Formula
     # Change to buildpath where the tarball is extracted
     # Use uv sync to install dependencies from pyproject.toml
     cd buildpath do
-      system venv.root/"bin/python3", "-m", "uv", "sync", "--no-dev"
+      system venv.root / "bin/python3", "-m", "uv", "sync", "--no-dev"
     end
 
     # Install the main package from the tarball
-    system venv.root/"bin/python3", "-m", "uv", "pip", "install", buildpath
+    system venv.root / "bin/python3", "-m", "uv", "pip", "install", buildpath
 
-    bin.install_symlink (venv.root/"bin/kraken")
-    bin.install_symlink venv.root/"bin/kraken-credentials"
+    bin.install_symlink (venv.root / "bin/kraken")
+    bin.install_symlink venv.root / "bin/kraken-credentials"
   end
 
   def post_install
@@ -100,7 +118,7 @@ class KrakenCliTest < Formula
     ENV["_SKIP_METADATA_CACHE"] = "1"
 
     # Generate shell completions
-    generate_completions_from_executable(bin/"kraken", "completion")
+    generate_completions_from_executable(bin / "kraken", "completion")
   end
 
   def caveats
