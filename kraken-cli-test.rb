@@ -57,8 +57,7 @@ class KrakenCliTest < Formula
 
   livecheck do
     url "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli"
-    regex(/"version"\s*:\s*"(\d+(?:\.\d+)+)"/)
-    strategy :page_match
+    strategy :nexus_json
   end
 
   depends_on "aws-iam-authenticator"
