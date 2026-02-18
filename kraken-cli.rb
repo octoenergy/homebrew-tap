@@ -30,9 +30,7 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
     if ENV["HOMEBREW_CIRCLECI"]
       cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
                   File.expand_path("~/certificates/ktl-ca-circleci.pem")
-      if File.exist?(cert_path)
-        args += ["--key", cert_path, "--cert", cert_path]
-      end
+      args += ["--key", cert_path, "--cert", cert_path] if File.exist?(cert_path)
     end
     args
   end
@@ -44,7 +42,7 @@ class KrakenCli < Formula
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
 
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz", using: MtlsCurlDownloadStrategy
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.42.4/kraken_cli-0.42.4.tar.gz", using: CustomCurlDownloadStrategy
   sha256 "7b0ce9fd86a6340c45d33bd10f26fbf8036bc93231bca87b4abb9438f53fe921"
   version "0.42.4"
   license "UNLICENSED"
