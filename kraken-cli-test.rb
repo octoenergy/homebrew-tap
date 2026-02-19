@@ -33,9 +33,7 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
 
   def curl_args(*)
     args = super
-    cert_path =
-      ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
-      (File.expand_path("~/certificates/ktl-ca-circleci.pem") if ENV["HOMEBREW_CIRCLECI"])
+    cert_path = ENV["HOMEBREW_SSL_CLIENT_CERT"]
     if cert_path.to_s != "" && File.exist?(File.expand_path(cert_path))
       args += ["--key", File.expand_path(cert_path), "--cert", File.expand_path(cert_path)]
     end
