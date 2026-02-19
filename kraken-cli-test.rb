@@ -13,20 +13,20 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
         Net::HTTP.start(
           uri.hostname,
           uri.port,
-          use_ssl: true,
+          use_ssl:      true,
           open_timeout: 2,
-          read_timeout: 2
+          read_timeout: 2,
         ) { |http| http.get(uri.request_uri).body.strip.downcase }
-      rescue StandardError
+      rescue
         ""
       end
     raise <<~EOS unless zscaler_ok.to_s.include?("yes")
-        Zscaler does not appear to be connected.
+      Zscaler does not appear to be connected.
 
-        Please connect to Zscaler Private Access and try again.
+      Please connect to Zscaler Private Access and try again.
 
-        Check your status at: #{ZSCALER_CHECK_URL}
-      EOS
+      Check your status at: #{ZSCALER_CHECK_URL}
+    EOS
 
     super
   end
@@ -36,9 +36,9 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
     if ENV["HOMEBREW_CIRCLECI"]
       cert_path =
         ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
-          File.expand_path("~/certificates/ktl-ca-circleci.pem")
+        File.expand_path("~/certificates/ktl-ca-circleci.pem")
       args += ["--key", cert_path, "--cert", cert_path] if File.exist?(
-        cert_path
+        cert_path,
       )
     end
     args
@@ -89,11 +89,11 @@ class KrakenCliTest < Formula
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
       # These are set in the CircleCI config
-      ENV["UV_NO_CONFIG"] = ENV["HOMEBREW_UV_NO_CONFIG"]
-      ENV["UV_NATIVE_TLS"] = ENV["HOMEBREW_UV_NATIVE_TLS"]
-      ENV["UV_INDEX_URL"] = ENV["HOMEBREW_UV_INDEX_URL"]
-      ENV["UV_EXTRA_INDEX_URL"] = ENV["HOMEBREW_UV_EXTRA_INDEX_URL"]
-      ENV["SSL_CLIENT_CERT"] = ENV["HOMEBREW_SSL_CLIENT_CERT"]
+      ENV["UV_NO_CONFIG"] = ENV.fetch("HOMEBREW_UV_NO_CONFIG", nil)
+      ENV["UV_NATIVE_TLS"] = ENV.fetch("HOMEBREW_UV_NATIVE_TLS", nil)
+      ENV["UV_INDEX_URL"] = ENV.fetch("HOMEBREW_UV_INDEX_URL", nil)
+      ENV["UV_EXTRA_INDEX_URL"] = ENV.fetch("HOMEBREW_UV_EXTRA_INDEX_URL", nil)
+      ENV["SSL_CLIENT_CERT"] = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", nil)
     end
 
     # Change to buildpath where the tarball is extracted
@@ -105,7 +105,7 @@ class KrakenCliTest < Formula
     # Install the main package from the tarball
     system venv.root / "bin/python3", "-m", "uv", "pip", "install", buildpath
 
-    bin.install_symlink (venv.root / "bin/kraken")
+    bin.install_symlink(venv.root / "bin/kraken")
     bin.install_symlink venv.root / "bin/kraken-credentials"
   end
 

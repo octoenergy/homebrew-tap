@@ -35,30 +35,28 @@ If any part of the formula requires Zscaler connectivity, by default homebrew wi
 
 A brief connectivity check can be implemented as part of the Download Strategy. See the CustomCurlDownloadStrategy in the kraken-cli formulae for an example.
 
-## Format formulae using prettier
+## Format formulae using rubocop
 
-This project comes preconfigured with prettier set up for ruby, however you'll need to install the prettier plugin:
+This project comes preconfigured with rubocop set up for ruby, however you'll need to install the rubocop plugin:
 
-### Install dependencies
-
-First install the ruby prettier plugin:
-
+### Install ruby with mise
 ```shell
-npm install
+mise install
 ```
 
-Then install the dependencies for the prettier plugin:
+### Install rubocop
 
 ```shell
-gem install bundler prettier_print syntax_tree syntax_tree-haml syntax_tree-rbs
+bundle install
 ```
 
-### Format the formulae
+Then you can run rubocop to lint and format the formulae and livecheck strategies:
 
-Then you can run prettier to format the formulae:
-
+Lint:
 ```shell
-npx prettier --write ./**/*.rb
+bundle exec rubocop
 ```
-
-or install the vscode extension.
+Apply safe fixes:
+```shell
+bundle exec rubocop -a
+```
