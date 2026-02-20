@@ -3,7 +3,7 @@ ownership_rules:
   global_allowed_users:
     - "octo-ci"
     - "ci-kraken-cli[bot]"
-    - "ci-ka-chow-cli[bot]"
+    - "ci-ka-chow[bot]"
   directory_matching_rules:
     - name: Kraken CLI formula update
       path: kraken-cli.rb
