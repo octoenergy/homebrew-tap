@@ -4,3 +4,5 @@ ownership_rules:
   directory_matching_rules:
     - name: Kraken CLI formula update
       path: kraken-cli.rb
+    - name: Ka Chow CLI formula update
+      path: ka-chow-cli.rb
