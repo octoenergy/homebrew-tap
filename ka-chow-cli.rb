@@ -46,9 +46,9 @@ class KaChowCli < Formula
 
   desc "Ka-Chow!"
   homepage "https://github.com/octoenergy/ka-chow/"
-  url "https://nexus.us.ktl.net/repository/pypi-kraken-private/packages/ka-chow-cli/0.1.1/ka_chow_cli-0.1.1.tar.gz",
+  url "https://nexus.us.ktl.net/repository/pypi-kraken-private/packages/ka-chow-cli/0.1.2/ka_chow_cli-0.1.2.tar.gz",
       using: CustomCurlDownloadStrategy
-  sha256 "afc525a633e2d39cfebc0d38bcd14c37c66760c5b780d7c9b1503d069d36375e"
+  sha256 "b42d0b61fa8155378961d7faaa443c6074786c7fb21c9ef947e8a7338644f30d"
   head "https://github.com/octoenergy/ka-chow.git", branch: "main"
 
   livecheck do
