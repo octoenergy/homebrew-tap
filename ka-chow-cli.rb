@@ -41,33 +41,22 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
   end
 end
 
-class KrakenCliTest < Formula
+class KaChowCli < Formula
   include Language::Python::Virtualenv
 
-  desc "Tools for Kraken Tech"
-  homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.43.0/kraken_cli-0.43.0.tar.gz",
+  desc "Ka-Chow!"
+  homepage "https://github.com/octoenergy/ka-chow/"
+  url "https://nexus.us.ktl.net/repository/pypi-kraken-private/packages/ka-chow-cli/0.1.2/ka_chow_cli-0.1.2.tar.gz",
       using: CustomCurlDownloadStrategy
-  sha256 "2ad526bf45f2281b40c8c96674d8679a96554002d47bfcfd124a3f7b7a701bcc"
-  head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
+  sha256 "b42d0b61fa8155378961d7faaa443c6074786c7fb21c9ef947e8a7338644f30d"
+  head "https://github.com/octoenergy/ka-chow.git", branch: "main"
 
   livecheck do
-    url "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli"
+    url "https://nexus.us.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=ka-chow-cli"
     strategy :nexus_json
   end
 
-  depends_on "aws-iam-authenticator"
-  depends_on "awscli@2"
-  depends_on "cryptography"
-  depends_on "docker-credential-helper-ecr"
-  depends_on "fzf"
-  depends_on "kubernetes-cli"
   depends_on "python@3.13"
-  depends_on "sops"
-  depends_on "helm" => :recommended
-  depends_on "k9s" => :recommended
-  depends_on "kubectx" => :recommended
-  depends_on "stern" => :optional
 
   def install
     venv = virtualenv_create(libexec)
@@ -101,8 +90,7 @@ class KrakenCliTest < Formula
     # Install the main package from the tarball
     system venv.root / "bin/python3", "-m", "uv", "pip", "install", buildpath
 
-    bin.install_symlink(venv.root / "bin/kraken")
-    bin.install_symlink venv.root / "bin/kraken-credentials"
+    bin.install_symlink(venv.root / "bin/ka-chow")
   end
 
   def post_install
@@ -111,46 +99,24 @@ class KrakenCliTest < Formula
     # is created when the metadata client is created which can't be
     # modified right now.
     ENV["_SKIP_METADATA_CACHE"] = "1"
-
-    # Generate shell completions
-    generate_completions_from_executable(bin / "kraken", "completion")
   end
 
   def caveats
     <<~EOS
-                          %@&%%%%%%%%%%%@@.
-                      @%%%%%%%%%%%%%%%%%%%%@/
-                    @%%%%%%%%%%%%%%%%%%%%%%%%%(
-                  #%%%%%//%%%%%%%%%%%%%%%/%%%%%@
-                  ,%%%#  @@@ (%%%%%%%%%  @@@  %%%@
-                  @%%%/      *%(%%%%#%%       %%%%
-               .  (%%%%%%*,%%%%%    (%%%%#/#%%%%%(
-        @@%%%%%%  (((%%%%%%%%%%%%%%%%%%%%%%%%(((( %%%%%%&@
-        %%%%#((((%   @@@@@#  %%%%%%%%%%  ,@@@@@,  (%(((#%%%%&
-      @ (%((     @@@#  @@@@@@ .%%%%%/ @@@@*  (@@@,    .(#% @@
-        %%#(   *@@@@@@@@@@@@@  (%%%%% @@@@ *%%  @@&   /(%%#
-        %@ %, , &@@@@@@@@@@@@@@ ((#%%%%%. *%%%%% @@@ /  %  @
-            @@@@@@@@@@@@@@@@@@@@ *(((%%%%%%%#((  @@@@@@@
-        %% .&@@@@@@@( %@@ %  @@@@&  @*@ * @@&  &@@@@@@@&% %%.
-        #%( &&&@@@@@@  .%% @  /@@@@&&%(*. .#&&@@@@@@@@&& .%%.
-      @ %%(. /&&&&&&@@ %%%    @@@&@@@@@@@@@@@@@&&&&&&  #%%% %
-        #@* %%#. (%.  ,%%% @%. &&&&&&&@@@@@@@&&&    *((%% @//
-            @ @ ,(((%%%(   / %   (   &&&&&&,  (((   @ @
-                  .(((,*@,     @&,#((     ,((#%.
-                                  #%%%%%%%%%%%%.%.
-                                  #@ %%%%%% /@#
-                                    .%((@
+      ░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░
+      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░
+      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░
+      ░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░      ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░
+      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░
+      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░
+      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░ ░▒▓█████████████▓▒░░▒▓█▓▒░
 
-      Thank you for installing the Kraken CLI
 
-      To get started, run `kraken --help` to see the available commands.
-
-      For more information, see the documentation at:
-      https://www.notion.so/kraken-tech/Getting-started-with-Cloudfarer-98b6e160e41c43e583c236bc97a9fc36?pvs=4
+      Thank you for installing Ka-Chow!
     EOS
   end
 
   test do
-    assert_match "kraken, version", shell_output("#{bin}/kraken --version")
+    assert_match "ka-chow, version", shell_output("#{bin}/ka-chow --version")
   end
 end
