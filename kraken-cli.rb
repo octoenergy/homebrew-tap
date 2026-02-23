@@ -1,13 +1,41 @@
-class MtlsCurlDownloadStrategy < CurlDownloadStrategy
+require "net/http"
+require "uri"
+
+class CustomCurlDownloadStrategy < CurlDownloadStrategy
+  ZSCALER_CHECK_URL = URI("https://ismyzscalerconnected.ktl.net").freeze
+
+  def fetch(timeout: nil)
+    return super if ENV["HOMEBREW_CIRCLECI"]
+
+    zscaler_ok =
+      begin
+        uri = ZSCALER_CHECK_URL
+        Net::HTTP.start(
+          uri.hostname,
+          uri.port,
+          use_ssl:      true,
+          open_timeout: 2,
+          read_timeout: 2,
+        ) { |http| http.get(uri.request_uri).body.strip.downcase }
+      rescue
+        ""
+      end
+    raise <<~EOS unless zscaler_ok.to_s.include?("yes")
+      Zscaler does not appear to be connected.
+
+      Please connect to Zscaler Private Access and try again.
+
+      Check your status at: #{ZSCALER_CHECK_URL}
+    EOS
+
+    super
+  end
+
   def curl_args(*)
     args = super
-    if ENV["HOMEBREW_CIRCLECI"]
-      cert_path =
-        ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
-          File.expand_path("~/certificates/ktl-ca-circleci.pem")
-      if File.exist?(cert_path)
-        args += ["--key", cert_path, "--cert", cert_path]
-      end
+    cert_path = ENV["HOMEBREW_SSL_CLIENT_CERT"]
+    if cert_path.to_s != "" && File.exist?(File.expand_path(cert_path))
+      args += ["--key", File.expand_path(cert_path), "--cert", File.expand_path(cert_path)]
     end
     args
   end
@@ -20,7 +48,7 @@ class KrakenCli < Formula
   homepage "https://github.com/octoenergy/kraken-cli/"
 
   url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.43.0/kraken_cli-0.43.0.tar.gz",
-      using: MtlsCurlDownloadStrategy
+      using: CustomCurlDownloadStrategy
   sha256 "2ad526bf45f2281b40c8c96674d8679a96554002d47bfcfd124a3f7b7a701bcc"
   version "0.43.0"
   license "UNLICENSED"

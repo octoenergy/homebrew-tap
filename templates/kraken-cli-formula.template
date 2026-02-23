@@ -1,11 +1,36 @@
-class MtlsCurlDownloadStrategy < CurlDownloadStrategy
+require "net/http"
+require "uri"
+
+class CustomCurlDownloadStrategy < CurlDownloadStrategy
+  ZSCALER_CHECK_URL = URI("https://ismyzscalerconnected.ktl.net").freeze
+
+  def fetch(timeout: nil)
+    zscaler_ok = begin
+      uri = ZSCALER_CHECK_URL
+      Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, open_timeout: 2, read_timeout: 2) do |http|
+        http.get(uri.request_uri).body.strip.downcase
+      end
+    rescue
+      ""
+    end
+      unless zscaler_ok.to_s.include?("yes")
+        raise <<~EOS
+          Zscaler does not appear to be connected.
+          
+          Please connect to Zscaler Private Access and try again.
+          
+          Check your status at: #{ZSCALER_CHECK_URL}
+        EOS
+      end
+    super
+  end
+
   def curl_args(*)
     args = super
     if ENV["HOMEBREW_CIRCLECI"]
-      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] || File.expand_path("~/certificates/ktl-ca-circleci.pem")
-      if File.exist?(cert_path)
-        args += ["--key", cert_path, "--cert", cert_path]
-      end
+      cert_path = ENV["SSL_CLIENT_CERT"] || ENV["HOMEBREW_SSL_CLIENT_CERT"] ||
+                  File.expand_path("~/certificates/ktl-ca-circleci.pem")
+      args += ["--key", cert_path, "--cert", cert_path] if File.exist?(cert_path)
     end
     args
   end
