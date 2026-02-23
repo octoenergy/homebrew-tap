@@ -46,20 +46,23 @@ class KrakenCli < Formula
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-
   url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.43.0/kraken_cli-0.43.0.tar.gz",
       using: CustomCurlDownloadStrategy
   sha256 "2ad526bf45f2281b40c8c96674d8679a96554002d47bfcfd124a3f7b7a701bcc"
-  version "0.43.0"
-  license "UNLICENSED"
+  head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
-  depends_on "python@3.13"
-  depends_on "cryptography"
-  depends_on "docker-credential-helper-ecr"
+  livecheck do
+    url "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli"
+    strategy :nexus_json
+  end
+
   depends_on "aws-iam-authenticator"
   depends_on "awscli@2"
+  depends_on "cryptography"
+  depends_on "docker-credential-helper-ecr"
   depends_on "fzf"
   depends_on "kubernetes-cli"
+  depends_on "python@3.13"
   depends_on "sops"
   depends_on "helm" => :recommended
   depends_on "k9s" => :recommended
@@ -79,16 +82,14 @@ class KrakenCli < Formula
            "--prefer-binary",
            "uv"
 
-    verbose = ""
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
       # These are set in the CircleCI config
-      ENV["UV_NO_CONFIG"] = ENV["HOMEBREW_UV_NO_CONFIG"]
-      ENV["UV_NATIVE_TLS"] = ENV["HOMEBREW_UV_NATIVE_TLS"]
-      ENV["UV_INDEX_URL"] = ENV["HOMEBREW_UV_INDEX_URL"]
-      ENV["UV_EXTRA_INDEX_URL"] = ENV["HOMEBREW_UV_EXTRA_INDEX_URL"]
-      ENV["SSL_CLIENT_CERT"] = ENV["HOMEBREW_SSL_CLIENT_CERT"]
-      verbose = "--verbose"
+      ENV["UV_NO_CONFIG"] = ENV.fetch("HOMEBREW_UV_NO_CONFIG", nil)
+      ENV["UV_NATIVE_TLS"] = ENV.fetch("HOMEBREW_UV_NATIVE_TLS", nil)
+      ENV["UV_INDEX_URL"] = ENV.fetch("HOMEBREW_UV_INDEX_URL", nil)
+      ENV["UV_EXTRA_INDEX_URL"] = ENV.fetch("HOMEBREW_UV_EXTRA_INDEX_URL", nil)
+      ENV["SSL_CLIENT_CERT"] = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", nil)
     end
 
     # Change to buildpath where the tarball is extracted
@@ -100,7 +101,7 @@ class KrakenCli < Formula
     # Install the main package from the tarball
     system venv.root / "bin/python3", "-m", "uv", "pip", "install", buildpath
 
-    bin.install_symlink (venv.root / "bin/kraken")
+    bin.install_symlink(venv.root / "bin/kraken")
     bin.install_symlink venv.root / "bin/kraken-credentials"
   end
 
@@ -149,5 +150,7 @@ class KrakenCli < Formula
     EOS
   end
 
-  test { assert_match "kraken, version", shell_output("kraken --version") }
+  test do
+    assert_match "kraken, version", shell_output("#{bin}/kraken --version")
+  end
 end
