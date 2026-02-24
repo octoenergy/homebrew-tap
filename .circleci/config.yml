@@ -62,25 +62,6 @@ jobs:
             kraken gen-fernet-key
 
 workflows:
-  homebrew-bump-formula:
-    jobs:
-      - homebrew-bump-formula:
-          context: KTL_NEXUS
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-  homebrew-bump-formula-manual:
-    when: << pipeline.parameters.tag >> != ""
-    jobs:
-      - homebrew-bump-formula:
-          context: KTL_NEXUS
-          filters:
-            branches:
-              only: /^(main)$/
-            tags:
-              ignore: /.*/
   test-formula-macos:
     when: << pipeline.git.branch >> != ""
     jobs:
