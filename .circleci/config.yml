@@ -26,85 +26,6 @@ commands:
       - ktl-nexus/configure_uv
 
 jobs:
-  homebrew-bump-formula:
-    executor:
-      name: ktl-nexus/default
-      version: "3.13"
-    steps:
-      - setup
-      - checkout
-      - gh/install
-      - run:
-          name: Test for nexus package presence
-          command: |
-            # Use pipeline parameter if provided, otherwise fall back to trigger parameter
-            tag="<< pipeline.parameters.tag >>"
-            if [ -z "${tag}" ]; then
-              tag="<< pipeline.trigger_parameters.github_app.ref >>"
-            fi
-            echo "Using tag: ${tag}"
-            echo "Waiting for package to be published..."
-            sleep 30
-            for i in {1..20}; do
-              pkg_url=$(curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" | jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl')
-              if [ -n "${pkg_url}" ]; then
-                echo "Package found: ${pkg_url}"
-                break
-              fi
-              sleep 20
-            done
-            if [ -z "${pkg_url}" ]; then
-              echo "Package not found after 20 attempts"
-              exit 1
-            fi
-      - run:
-          name: Template homebrew formula
-          command: |
-            # Use pipeline parameter if provided, otherwise fall back to trigger parameter
-            tag="<< pipeline.parameters.tag >>"
-            if [ -z "${tag}" ]; then
-              tag="<< pipeline.trigger_parameters.github_app.ref >>"
-            fi
-            echo "Using tag: ${tag}"
-
-            curl --key ~/certificates/ktl-ca-circleci.pem --cert ~/certificates/ktl-ca-circleci.pem -s "https://nexus.ktl.net/service/rest/v1/search?repository=pypi-kraken-private&name=kraken-cli" > nexus_response.json
-
-            pkg_url=$(jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .assets[] | select(.contentType=="application/x-gzip") | .downloadUrl' nexus_response.json)
-            echo "pkg_url: ${pkg_url}"
-
-            pkg_sha256=$(jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .assets[] | select(.contentType=="application/x-gzip") | .checksum.sha256' nexus_response.json)
-            echo "pkg_sha256: ${pkg_sha256}"
-
-            pkg_version=$(jq --arg tag "${tag}" --raw-output '.items[] | select(.version==$tag) | .version' nexus_response.json)
-            echo "pkg_version: ${pkg_version}"
-
-            # Template the formula file
-            sed -e "s|{{ pkg_url }}|${pkg_url}|g" \
-                -e "s|{{ pkg_sha256 }}|${pkg_sha256}|g" \
-                -e "s|{{ pkg_version }}|${pkg_version}|g" \
-                templates/kraken-cli-formula.template > kraken-cli.rb
-
-            echo "Templated formula written to kraken-cli.rb"
-            echo "First 20 lines of generated formula:"
-            head -20 kraken-cli.rb
-
-            # Commit the formula file
-            git config --global user.name "CircleCI"
-            git config --global user.email "circleci@circleci.com"
-
-            git checkout -b bump-kraken-cli-formula-${pkg_version}
-
-            git add kraken-cli.rb
-            git commit -m "Bump kraken-cli formula to ${pkg_version}"
-            git push origin bump-kraken-cli-formula-${pkg_version}
-
-            # Create a pull request
-            pr_body=$(printf "Bump kraken-cli formula to %s\n\nkraken-cli release: https://github.com/octoenergy/kraken-cli/releases/tag/%s" "${pkg_version}" "${pkg_version}")
-            gh pr create --title "Bump kraken-cli formula to ${pkg_version}" --body "${pr_body}"
-            pr_link=$(gh pr view --json url --jq '.url')
-            # enable auto merge
-            gh pr merge "${pr_link}" --auto --squash
-
   test-formula-macos:
     executor:
       name: ktl-nexus/macos
@@ -141,25 +62,6 @@ jobs:
             kraken gen-fernet-key
 
 workflows:
-  homebrew-bump-formula:
-    jobs:
-      - homebrew-bump-formula:
-          context: KTL_NEXUS
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-  homebrew-bump-formula-manual:
-    when: << pipeline.parameters.tag >> != ""
-    jobs:
-      - homebrew-bump-formula:
-          context: KTL_NEXUS
-          filters:
-            branches:
-              only: /^(main)$/
-            tags:
-              ignore: /.*/
   test-formula-macos:
     when: << pipeline.git.branch >> != ""
     jobs:
