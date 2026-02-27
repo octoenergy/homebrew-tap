@@ -1,2 +1,7 @@
 [tools]
 ruby = "3.4.8"
+python = "3.13"
+
+[env]
+# allow installation of local formulae
+HOMEBREW_DEVELOPER = 1

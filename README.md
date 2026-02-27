@@ -22,6 +22,7 @@ brew install <package>
 
 ## Available Formulae
 
+- **ktdb**: CLI tool to connect to KTL databases
 - **kraken-cli**: CLI tool to help Kraken developers work with AWS, Kubernetes, and other KTL services
 - **ka-chow-cli**: A test bed for CLI development and release processes
 
