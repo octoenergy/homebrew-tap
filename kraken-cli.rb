@@ -56,6 +56,7 @@ class KrakenCli < Formula
     strategy :nexus_json
   end
 
+  depends_on "uv"
   depends_on "aws-iam-authenticator"
   depends_on "awscli@2"
   depends_on "cryptography"
@@ -72,15 +73,8 @@ class KrakenCli < Formula
   def install
     venv = virtualenv_create(libexec)
 
-    ENV["UV_PROJECT_ENVIRONMENT"] = venv.root
-
-    # Install uv using pre-built wheels
-    system venv.root / "bin/python3",
-           "-m",
-           "pip",
-           "install",
-           "--prefer-binary",
-           "uv"
+    ENV["UV_PROJECT_ENVIRONMENT"] = venv.root.to_s
+    ENV["VIRTUAL_ENV"] = venv.root.to_s
 
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
@@ -92,14 +86,11 @@ class KrakenCli < Formula
       ENV["SSL_CLIENT_CERT"] = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", nil)
     end
 
-    # Change to buildpath where the tarball is extracted
-    # Use uv sync to install dependencies from pyproject.toml
+    # Install deps + package into venv
+    uv = Formula["uv"].opt_bin / "uv"
     cd buildpath do
-      system venv.root / "bin/python3", "-m", "uv", "sync", "--no-dev"
+      system uv, "sync", "--no-dev", "--no-editable"
     end
-
-    # Install the main package from the tarball
-    system venv.root / "bin/python3", "-m", "uv", "pip", "install", buildpath
 
     bin.install_symlink(venv.root / "bin/kraken")
     bin.install_symlink venv.root / "bin/kraken-credentials"
