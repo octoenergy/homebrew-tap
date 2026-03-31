@@ -56,19 +56,19 @@ class KrakenCli < Formula
     strategy :nexus_json
   end
 
-  depends_on "uv"
   depends_on "aws-iam-authenticator"
   depends_on "awscli@2"
   depends_on "cryptography"
   depends_on "docker-credential-helper-ecr"
   depends_on "fzf"
-  depends_on "kubernetes-cli"
-  depends_on "python@3.13"
-  depends_on "sops"
   depends_on "helm" => :recommended
   depends_on "k9s" => :recommended
   depends_on "kubectx" => :recommended
+  depends_on "kubernetes-cli"
+  depends_on "python@3.13"
+  depends_on "sops"
   depends_on "stern" => :optional
+  depends_on "uv"
 
   def install
     venv = virtualenv_create(libexec)
