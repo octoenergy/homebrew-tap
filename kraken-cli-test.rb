@@ -42,8 +42,6 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
 end
 
 class KrakenCliTest < Formula
-  include Language::Python::Virtualenv
-
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
   url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.44.8/kraken_cli-0.44.8.tar.gz",
@@ -71,10 +69,13 @@ class KrakenCliTest < Formula
   depends_on "uv"
 
   def install
-    venv = virtualenv_create(libexec, "python3.13")
+    uv = Formula["uv"].opt_bin / "uv"
+    python = Formula["python@3.13"].opt_bin / "python3.13"
 
-    ENV["UV_PROJECT_ENVIRONMENT"] = venv.root.to_s
-    ENV["VIRTUAL_ENV"] = venv.root.to_s
+    system uv, "venv", libexec, "--python", python
+
+    ENV["UV_PROJECT_ENVIRONMENT"] = libexec.to_s
+    ENV["VIRTUAL_ENV"] = libexec.to_s
 
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
@@ -87,13 +88,12 @@ class KrakenCliTest < Formula
     end
 
     # Install deps + package into venv
-    uv = Formula["uv"].opt_bin / "uv"
     cd buildpath do
       system uv, "sync", "--no-dev", "--no-editable"
     end
 
-    bin.install_symlink(venv.root / "bin/kraken")
-    bin.install_symlink venv.root / "bin/kraken-credentials"
+    bin.install_symlink(libexec / "bin/kraken")
+    bin.install_symlink libexec / "bin/kraken-credentials"
   end
 
   def post_install
