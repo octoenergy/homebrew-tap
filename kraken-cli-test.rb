@@ -71,7 +71,7 @@ class KrakenCliTest < Formula
   depends_on "uv"
 
   def install
-    venv = virtualenv_create(libexec)
+    venv = virtualenv_create(libexec, "python3.13")
 
     ENV["UV_PROJECT_ENVIRONMENT"] = venv.root.to_s
     ENV["VIRTUAL_ENV"] = venv.root.to_s
