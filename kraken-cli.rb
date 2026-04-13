@@ -46,9 +46,9 @@ class KrakenCli < Formula
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.44.8/kraken_cli-0.44.8.tar.gz",
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.44.9/kraken_cli-0.44.9.tar.gz",
       using: CustomCurlDownloadStrategy
-  sha256 "c5ec8a4f5b34f490ef7b16dfe9d7a384263b5eadb333642ddf399ba5671bd163"
+  sha256 "5724f52785d682649597c7e015d3a992f441f4512023d8a17ec89ce309a2e547"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
   livecheck do
@@ -69,7 +69,6 @@ class KrakenCli < Formula
   depends_on "k9s" => :recommended
   depends_on "kubectx" => :recommended
   depends_on "stern" => :optional
-
 
   def install
     venv = virtualenv_create(libexec)
