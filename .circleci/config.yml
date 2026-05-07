@@ -7,7 +7,7 @@ parameters:
     default: ""
 
 orbs:
-  ktl-nexus: krakentech/ktl-nexus@4
+  ktl-nexus: krakentech/ktl-nexus@8
   gh: circleci/github-cli@2.7.2
 
 commands:
