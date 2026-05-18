@@ -44,9 +44,9 @@ end
 class KrakenCliTest < Formula
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.44.8/kraken_cli-0.44.8.tar.gz",
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.45.2/kraken_cli-0.45.2.tar.gz",
       using: CustomCurlDownloadStrategy
-  sha256 "c5ec8a4f5b34f490ef7b16dfe9d7a384263b5eadb333642ddf399ba5671bd163"
+  sha256 "c2ecc74b7a3edfbbcbb0964a2b4ebb05819a33e947e8bf39cd09289d97243f39"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
   livecheck do
@@ -59,22 +59,24 @@ class KrakenCliTest < Formula
   depends_on "cryptography"
   depends_on "docker-credential-helper-ecr"
   depends_on "fzf"
+  depends_on "rust" => :build
   depends_on "helm" => :recommended
   depends_on "k9s" => :recommended
   depends_on "kubectx" => :recommended
   depends_on "kubernetes-cli"
-  depends_on "python@3.13"
+  depends_on "python@3.14"
   depends_on "sops"
   depends_on "stern" => :optional
   depends_on "uv"
 
   def install
     uv = Formula["uv"].opt_bin / "uv"
-    python = Formula["python@3.13"].opt_bin / "python3.13"
+    python = Formula["python@3.14"].opt_bin / "python3.14"
 
     system uv, "venv", libexec, "--python", python
 
     ENV["UV_PROJECT_ENVIRONMENT"] = libexec.to_s
+    ENV["UV_NO_BINARY_PACKAGE"] = "cryptography rpds-py pydantic-core"
     ENV["VIRTUAL_ENV"] = libexec.to_s
 
     if ENV["HOMEBREW_CIRCLECI"]
