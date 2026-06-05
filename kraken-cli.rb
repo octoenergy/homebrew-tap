@@ -46,9 +46,9 @@ class KrakenCli < Formula
 
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.47.0/kraken_cli-0.47.0.tar.gz",
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.47.1/kraken_cli-0.47.1.tar.gz",
       using: CustomCurlDownloadStrategy
-  sha256 "eea0e2292a7e442fbdd59d4febba0224ef374664cb64b141ab185d0fdc929469"
+  sha256 "5dd1d28b4ed8b1c4429aad9f4d3ce01100bb10af83e2abc224fccc07011008ab"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
   livecheck do
