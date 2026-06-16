@@ -42,6 +42,11 @@ module Homebrew
           items.filter_map { |item| item["version"] }.uniq
         end
 
+        # The keyword arg for pre-fetched content was renamed from
+        # `provided_content` to `content` in Homebrew 6.0. We accept both via a
+        # keyword splat so this strategy works across Homebrew versions (CI may
+        # pin an older release). Sorbet's `override` shape check skips the
+        # missing-kwarg validation when a keyrest param is present.
         sig do
           override
             .params(
@@ -49,6 +54,7 @@ module Homebrew
               regex: T.nilable(Regexp),
               content: T.nilable(String),
               options: Options,
+              kwargs: T.untyped,
               block: T.nilable(Proc)
             )
             .returns(T::Hash[Symbol, T.anything])
@@ -58,8 +64,10 @@ module Homebrew
           regex: nil,
           content: nil,
           options: Options.new,
+          **kwargs,
           &block
         )
+          content ||= kwargs[:provided_content]
           match_data = { matches: {}, regex:, url: }
           match_data[:cached] = true if content
           return match_data if url.blank?
