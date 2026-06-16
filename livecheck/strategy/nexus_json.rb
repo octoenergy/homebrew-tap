@@ -12,7 +12,7 @@ require "uri"
 # https://github.com/Homebrew/brew/blob/master/Library/Homebrew/livecheck/strategy/json.rb
 # Adds optional mTLS support when HOMEBREW_SSL_CLIENT_CERT is set to a cert file path.
 
-#TODO: Support pagination or figure out how to get nexus to return latest uploads first
+# TODO: Support pagination or figure out how to get nexus to return latest uploads first
 
 module Homebrew
   module Livecheck
@@ -42,53 +42,53 @@ module Homebrew
           items.filter_map { |item| item["version"] }.uniq
         end
 
-        sig do
+        sig {
           override
             .params(
-              url: String,
-              regex: T.nilable(Regexp),
-              content: T.nilable(String),
-              options: Options,
-              block: T.nilable(Proc)
+              url:              String,
+              regex:            T.nilable(Regexp),
+              provided_content: T.nilable(String),
+              options:          Options,
+              block:            T.nilable(Proc),
             )
             .returns(T::Hash[Symbol, T.anything])
-        end
+        }
         def self.find_versions(
           url:,
           regex: nil,
-          content: nil,
+          provided_content: nil,
           options: Options.new,
           &block
         )
           match_data = { matches: {}, regex:, url: }
-          match_data[:cached] = true if content
+          match_data[:cached] = true if provided_content
           return match_data if url.blank?
 
           unless match_data[:cached]
             env_cert = ENV["HOMEBREW_SSL_CLIENT_CERT"].to_s.strip
             if env_cert.empty?
-              content, error = fetch_without_mtls(url)
+              provided_content, error = fetch_without_mtls(url)
             else
               cert_path = File.expand_path(env_cert)
               if File.exist?(cert_path)
-                content, error = fetch_with_mtls(url, cert_path)
+                provided_content, error = fetch_with_mtls(url, cert_path)
               else
                 match_data[:messages] = [
-                  "Client certificate path set in HOMEBREW_SSL_CLIENT_CERT but file not found at: #{cert_path}"
+                  "Client certificate path set in HOMEBREW_SSL_CLIENT_CERT but file not found at: #{cert_path}",
                 ]
                 return match_data
               end
             end
 
-            if error && content.nil?
+            if error && provided_content.nil?
               match_data[:messages] = [error]
               return match_data
             end
           end
 
-          return match_data if content.blank?
+          return match_data if provided_content.blank?
 
-          json = JSON.parse(content)
+          json = JSON.parse(provided_content)
           versions = versions_from_nexus_items(json)
           versions.each { |v| match_data[:matches][v] = Version.new(v) }
           match_data
