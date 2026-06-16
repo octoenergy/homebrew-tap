@@ -57,7 +57,7 @@ class KrakenCli < Formula
   end
 
   depends_on "aws-iam-authenticator"
-  depends_on "awscli@2"
+  depends_on "awscli"
   depends_on "cryptography"
   depends_on "docker-credential-helper-ecr"
   depends_on "fzf"
