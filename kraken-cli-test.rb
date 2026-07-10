@@ -59,6 +59,7 @@ class KrakenCliTest < Formula
   depends_on "cryptography"
   depends_on "docker-credential-helper-ecr"
   depends_on "fzf"
+  depends_on "libpq"
   depends_on "rust" => :build
   depends_on "helm" => :recommended
   depends_on "k9s" => :recommended
