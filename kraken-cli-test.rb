@@ -42,11 +42,13 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
 end
 
 class KrakenCliTest < Formula
+  include Language::Python::Virtualenv
+
   desc "Tools for Kraken Tech"
   homepage "https://github.com/octoenergy/kraken-cli/"
-  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.44.8/kraken_cli-0.44.8.tar.gz",
+  url "https://nexus.ktl.net/repository/pypi-kraken-private/packages/kraken-cli/0.50.1/kraken_cli-0.50.1.tar.gz",
       using: CustomCurlDownloadStrategy
-  sha256 "c5ec8a4f5b34f490ef7b16dfe9d7a384263b5eadb333642ddf399ba5671bd163"
+  sha256 "aea4e1eed65b004eb1a695ad9c6212a17c88f07b1df6ef7f69ee2dbfa2824ec0"
   head "https://github.com/octoenergy/kraken-cli.git", branch: "main"
 
   livecheck do
@@ -55,27 +57,24 @@ class KrakenCliTest < Formula
   end
 
   depends_on "aws-iam-authenticator"
-  depends_on "awscli@2"
+  depends_on "awscli"
   depends_on "cryptography"
   depends_on "docker-credential-helper-ecr"
   depends_on "fzf"
-  depends_on "helm" => :recommended
-  depends_on "k9s" => :recommended
-  depends_on "kubectx" => :recommended
   depends_on "kubernetes-cli"
   depends_on "python@3.13"
   depends_on "sops"
-  depends_on "stern" => :optional
   depends_on "uv"
+  depends_on "helm" => :recommended
+  depends_on "k9s" => :recommended
+  depends_on "kubectx" => :recommended
+  depends_on "stern" => :optional
 
   def install
-    uv = Formula["uv"].opt_bin / "uv"
-    python = Formula["python@3.13"].opt_bin / "python3.13"
+    venv = virtualenv_create(libexec)
 
-    system uv, "venv", libexec, "--python", python
-
-    ENV["UV_PROJECT_ENVIRONMENT"] = libexec.to_s
-    ENV["VIRTUAL_ENV"] = libexec.to_s
+    ENV["UV_PROJECT_ENVIRONMENT"] = venv.root.to_s
+    ENV["VIRTUAL_ENV"] = venv.root.to_s
 
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
@@ -88,12 +87,13 @@ class KrakenCliTest < Formula
     end
 
     # Install deps + package into venv
+    uv = Formula["uv"].opt_bin / "uv"
     cd buildpath do
       system uv, "sync", "--no-dev", "--no-editable"
     end
 
-    bin.install_symlink(libexec / "bin/kraken")
-    bin.install_symlink libexec / "bin/kraken-credentials"
+    bin.install_symlink(venv.root / "bin/kraken")
+    bin.install_symlink venv.root / "bin/kraken-credentials"
   end
 
   def post_install
