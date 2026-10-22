@@ -33,7 +33,7 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
 
   def curl_args(*)
     args = super
-    cert_path = ENV["HOMEBREW_SSL_CLIENT_CERT"]
+    cert_path = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", nil)
     if cert_path.to_s != "" && File.exist?(File.expand_path(cert_path))
       args += ["--key", File.expand_path(cert_path), "--cert", File.expand_path(cert_path)]
     end
@@ -87,7 +87,7 @@ class KrakenCli < Formula
     end
 
     # Install deps + package into venv
-    uv = Formula["uv"].opt_bin / "uv"
+    uv = formula_opt_bin("uv") / "uv"
     cd buildpath do
       system uv, "sync", "--no-dev", "--no-editable"
     end
