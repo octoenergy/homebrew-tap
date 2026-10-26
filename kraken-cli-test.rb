@@ -87,7 +87,7 @@ class KrakenCliTest < Formula
     end
 
     # Install deps + package into venv
-    uv = Formula["uv"].opt_bin / "uv"
+    uv = formula_opt_bin("uv") / "uv"
     cd buildpath do
       system uv, "sync", "--no-dev", "--no-editable"
     end
