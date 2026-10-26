@@ -1,0 +1,12 @@
+---
+ownership_rules:
+    allow_dot_github: false
+    global_allowed_users:
+        - "octo-ci"
+        - "ci-kraken-cli[bot]"
+        - "ci-ka-chow[bot]"
+    directory_matching_rules:
+        - name: Kraken CLI formula update
+          path: kraken-cli.rb
+        - name: Ka Chow CLI formula update
+          path: ka-chow-cli.rb
