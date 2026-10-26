@@ -31,6 +31,8 @@ jobs:
       name: ktl-nexus/macos
       xcode_version: 16.4.0 # MacOS 15.3.2
     environment:
+      # Allow installing a formula from a file path.
+      HOMEBREW_DEVELOPER: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
@@ -58,10 +60,7 @@ jobs:
       - run:
           name: Install Formula
           command: |
-            # Homebrew rejects formulae outside a tap, so install from a local tap.
-            brew tap-new --no-git local/ci
-            cp ./kraken-cli.rb "$(brew --repository local/ci)/Formula/kraken-cli.rb"
-            brew install --overwrite --force --verbose --formula local/ci/kraken-cli
+            brew install --overwrite --force --verbose --formula ./kraken-cli.rb
       - run:
           name: Smoke test
           command: |
