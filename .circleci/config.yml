@@ -58,7 +58,10 @@ jobs:
       - run:
           name: Install Formula
           command: |
-            brew install --overwrite --force --verbose --formula ./kraken-cli.rb
+            # Homebrew rejects formulae outside a tap, so install from a local tap.
+            brew tap-new --no-git local/ci
+            cp ./kraken-cli.rb "$(brew --repository local/ci)/Formula/kraken-cli.rb"
+            brew install --overwrite --force --verbose --formula local/ci/kraken-cli
       - run:
           name: Smoke test
           command: |
