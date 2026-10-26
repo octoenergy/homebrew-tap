@@ -31,8 +31,6 @@ jobs:
       name: ktl-nexus/macos
       xcode_version: 16.4.0 # MacOS 15.3.2
     environment:
-      # Allow installing a formula from a file path.
-      HOMEBREW_DEVELOPER: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
@@ -59,6 +57,10 @@ jobs:
             brew --version
       - run:
           name: Install Formula
+          # HOMEBREW_DEVELOPER allows installing from a file path. Set it here
+          # only, because it changes how `brew update` works.
+          environment:
+            HOMEBREW_DEVELOPER: "1"
           command: |
             brew install --overwrite --force --verbose --formula ./kraken-cli.rb
       - run:
