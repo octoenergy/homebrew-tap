@@ -50,7 +50,17 @@ jobs:
             # Parse uv.lock to ensure external Nexus url is used
             echo 'export HOMEBREW_CIRCLECI=$CIRCLECI' | tee -a $BASH_ENV
       - run:
+          name: Update Homebrew
+          # The image ships an old Homebrew without `post_install_steps`.
+          command: |
+            brew update
+            brew --version
+      - run:
           name: Install Formula
+          # HOMEBREW_DEVELOPER allows installing from a file path. Set it here
+          # only, because it changes how `brew update` works.
+          environment:
+            HOMEBREW_DEVELOPER: "1"
           command: |
             brew install --overwrite --force --verbose --formula ./kraken-cli.rb
       - run:

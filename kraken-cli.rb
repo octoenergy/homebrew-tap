@@ -33,8 +33,8 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
 
   def curl_args(*)
     args = super
-    cert_path = ENV["HOMEBREW_SSL_CLIENT_CERT"]
-    if cert_path.to_s != "" && File.exist?(File.expand_path(cert_path))
+    cert_path = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", "")
+    if !cert_path.empty? && File.exist?(File.expand_path(cert_path))
       args += ["--key", File.expand_path(cert_path), "--cert", File.expand_path(cert_path)]
     end
     args
@@ -87,7 +87,7 @@ class KrakenCli < Formula
     end
 
     # Install deps + package into venv
-    uv = Formula["uv"].opt_bin / "uv"
+    uv = formula_opt_bin("uv") / "uv"
     cd buildpath do
       system uv, "sync", "--no-dev", "--no-editable"
     end
@@ -96,15 +96,26 @@ class KrakenCli < Formula
     bin.install_symlink venv.root / "bin/kraken-credentials"
   end
 
-  def post_install
-    # We can't modify $HOME in post_install and install runs in a
-    # sandbox, so this is a hack since the metadata services' cache
-    # is created when the metadata client is created which can't be
-    # modified right now.
-    ENV["_SKIP_METADATA_CACHE"] = "1"
+  post_install_steps do
+    # The metadata client creates its cache under $HOME, which the sandbox
+    # does not allow, so skip the cache while the commands run.
+    mkdir_p "{{bash_completion}}"
+    run "{{bin}}/kraken",
+        args:        ["completion", "bash"],
+        env:         { "SHELL" => "bash", "_SKIP_METADATA_CACHE" => "1" },
+        stdout_path: "{{bash_completion}}/kraken"
 
-    # Generate shell completions
-    generate_completions_from_executable(bin / "kraken", "completion")
+    mkdir_p "{{zsh_completion}}"
+    run "{{bin}}/kraken",
+        args:        ["completion", "zsh"],
+        env:         { "SHELL" => "zsh", "_SKIP_METADATA_CACHE" => "1" },
+        stdout_path: "{{zsh_completion}}/_kraken"
+
+    mkdir_p "{{fish_completion}}"
+    run "{{bin}}/kraken",
+        args:        ["completion", "fish"],
+        env:         { "SHELL" => "fish", "_SKIP_METADATA_CACHE" => "1" },
+        stdout_path: "{{fish_completion}}/kraken.fish"
   end
 
   def caveats
