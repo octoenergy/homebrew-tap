@@ -94,28 +94,15 @@ class KrakenCliTest < Formula
 
     bin.install_symlink(venv.root / "bin/kraken")
     bin.install_symlink venv.root / "bin/kraken-credentials"
-  end
 
-  post_install_steps do
-    # The metadata client creates its cache under $HOME, which the sandbox
-    # does not allow, so skip the cache while the commands run.
-    mkdir_p "{{bash_completion}}"
-    run "{{bin}}/kraken",
-        args:        ["completion", "bash"],
-        env:         { "SHELL" => "bash", "_SKIP_METADATA_CACHE" => "1" },
-        stdout_path: "{{bash_completion}}/kraken"
-
-    mkdir_p "{{zsh_completion}}"
-    run "{{bin}}/kraken",
-        args:        ["completion", "zsh"],
-        env:         { "SHELL" => "zsh", "_SKIP_METADATA_CACHE" => "1" },
-        stdout_path: "{{zsh_completion}}/_kraken"
-
-    mkdir_p "{{fish_completion}}"
-    run "{{bin}}/kraken",
-        args:        ["completion", "fish"],
-        env:         { "SHELL" => "fish", "_SKIP_METADATA_CACHE" => "1" },
-        stdout_path: "{{fish_completion}}/kraken.fish"
+    # Completions must be generated in `install` rather than `post_install_steps`:
+    # Homebrew links the keg before post-install runs, so files written there are
+    # never symlinked into HOMEBREW_PREFIX and shells never find them.
+    # Skip the metadata cache and user extensions so the scripts are generated
+    # from a clean, sandbox-safe environment.
+    with_env("_SKIP_METADATA_CACHE" => "1", "KRAKEN_CLI_NO_EXT" => "1") do
+      generate_completions_from_executable(bin/"kraken", "completion")
+    end
   end
 
   def caveats
