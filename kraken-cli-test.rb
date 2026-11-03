@@ -92,8 +92,11 @@ class KrakenCliTest < Formula
       system uv, "sync", "--no-dev", "--no-editable"
     end
 
-    bin.install_symlink(venv.root / "bin/kraken")
-    bin.install_symlink venv.root / "bin/kraken-credentials"
+    # Installed under different names so this can be linked alongside kraken-cli.
+    # The credentials binary must stay `<main binary>-credentials`, as
+    # `generate-aws-config` writes `credential_process = <argv[0]>-credentials`.
+    bin.install_symlink venv.root/"bin/kraken" => "kraken-test"
+    bin.install_symlink venv.root/"bin/kraken-credentials" => "kraken-test-credentials"
 
     # Completions must be generated in `install` rather than `post_install_steps`:
     # Homebrew links the keg before post-install runs, so files written there are
@@ -101,7 +104,7 @@ class KrakenCliTest < Formula
     # Skip the metadata cache and user extensions so the scripts are generated
     # from a clean, sandbox-safe environment.
     with_env("_SKIP_METADATA_CACHE" => "1", "KRAKEN_CLI_NO_EXT" => "1") do
-      generate_completions_from_executable(bin/"kraken", "completion")
+      generate_completions_from_executable(bin/"kraken-test", "completion")
     end
   end
 
@@ -132,7 +135,7 @@ class KrakenCliTest < Formula
 
       Thank you for installing the Kraken CLI
 
-      To get started, run `kraken --help` to see the available commands.
+      To get started, run `kraken-test --help` to see the available commands.
 
       For more information, see the documentation at:
       https://www.notion.so/kraken-tech/Getting-started-with-Cloudfarer-98b6e160e41c43e583c236bc97a9fc36?pvs=4
@@ -140,6 +143,6 @@ class KrakenCliTest < Formula
   end
 
   test do
-    assert_match "kraken, version", shell_output("#{bin}/kraken --version")
+    assert_match "kraken-cli: ", shell_output("#{bin}/kraken-test --version")
   end
 end
