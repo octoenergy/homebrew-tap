@@ -31,7 +31,7 @@ class CustomCurlDownloadStrategy < CurlDownloadStrategy
     super
   end
 
-  def curl_args(*)
+  def curl_args(...)
     args = super
     cert_path = ENV["HOMEBREW_SSL_CLIENT_CERT"]
     if cert_path.to_s != "" && File.exist?(File.expand_path(cert_path))
