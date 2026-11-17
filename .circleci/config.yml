@@ -57,12 +57,17 @@ jobs:
             brew --version
       - run:
           name: Install Formula
-          # HOMEBREW_DEVELOPER allows installing from a file path. Set it here
-          # only, because it changes how `brew update` works.
+          # Homebrew 7.0.14 no longer installs formulae from a file path (even with
+          # HOMEBREW_DEVELOPER), so install by name from the tap, with this checkout's
+          # formula copied over the tapped one. Set HOMEBREW_DEVELOPER here only,
+          # because it changes how `brew update` works.
           environment:
             HOMEBREW_DEVELOPER: "1"
           command: |
-            brew install --overwrite --force --verbose --formula ./kraken-cli.rb
+            brew tap octoenergy/tap
+            brew trust --tap octoenergy/tap || true
+            cp ./kraken-cli.rb "$(brew --repository octoenergy/tap)/kraken-cli.rb"
+            brew install --overwrite --force --verbose --formula octoenergy/tap/kraken-cli
       - run:
           name: Smoke test
           command: |
