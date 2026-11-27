@@ -79,10 +79,9 @@ class KrakenCli < Formula
     if ENV["HOMEBREW_CIRCLECI"]
       # Set required UV env vars for mutual auth to Nexus
       # These are set in the CircleCI config
-      ENV["UV_NO_CONFIG"] = ENV.fetch("HOMEBREW_UV_NO_CONFIG", nil)
-      ENV["UV_NATIVE_TLS"] = ENV.fetch("HOMEBREW_UV_NATIVE_TLS", nil)
-      ENV["UV_INDEX_URL"] = ENV.fetch("HOMEBREW_UV_INDEX_URL", nil)
-      ENV["UV_EXTRA_INDEX_URL"] = ENV.fetch("HOMEBREW_UV_EXTRA_INDEX_URL", nil)
+      ENV["UV_DEFAULT_INDEX"] = ENV.fetch("HOMEBREW_UV_DEFAULT_INDEX", nil)
+      ENV["NETRC"] = ENV.fetch("HOMEBREW_UV_NETRC", nil)
+      ENV["UV_SYSTEM_CERTS"] = ENV.fetch("HOMEBREW_UV_SYSTEM_CERTS", nil)
       ENV["SSL_CLIENT_CERT"] = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", nil)
     end
 
