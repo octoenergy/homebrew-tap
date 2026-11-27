@@ -43,10 +43,10 @@ jobs:
           command: |
             # Configure uv for mutual authentication
             echo 'export HOMEBREW_SSL_CLIENT_CERT=$SSL_CLIENT_CERT' | tee -a $BASH_ENV
-            echo 'export HOMEBREW_UV_INDEX_URL=$UV_INDEX_URL' | tee -a $BASH_ENV
-            echo 'export HOMEBREW_UV_EXTRA_INDEX_URL=$UV_EXTRA_INDEX_URL' | tee -a $BASH_ENV
-            echo 'export HOMEBREW_UV_NO_CONFIG=true' | tee -a $BASH_ENV
-            echo 'export HOMEBREW_UV_NATIVE_TLS=$UV_NATIVE_TLS' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_DEFAULT_INDEX=$UV_DEFAULT_INDEX' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_INDEX_NEXUS_USERNAME=$UV_INDEX_NEXUS_USERNAME' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_INDEX_NEXUS_PASSWORD=$UV_INDEX_NEXUS_PASSWORD' | tee -a $BASH_ENV
+            echo 'export HOMEBREW_UV_SYSTEM_CERTS=$UV_SYSTEM_CERTS' | tee -a $BASH_ENV
             # Parse uv.lock to ensure external Nexus url is used
             echo 'export HOMEBREW_CIRCLECI=$CIRCLECI' | tee -a $BASH_ENV
       - run:
