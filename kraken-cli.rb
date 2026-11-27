@@ -80,11 +80,7 @@ class KrakenCli < Formula
       # Set required UV env vars for mutual auth to Nexus
       # These are set in the CircleCI config
       ENV["UV_DEFAULT_INDEX"] = ENV.fetch("HOMEBREW_UV_DEFAULT_INDEX", nil)
-      ENV["UV_INDEX_NEXUS_USERNAME"] = ENV.fetch("HOMEBREW_UV_INDEX_NEXUS_USERNAME", nil)
-      ENV["UV_INDEX_NEXUS_PASSWORD"] = ENV.fetch("HOMEBREW_UV_INDEX_NEXUS_PASSWORD", nil)
-      # The package pins metadata-client to this index in pyproject.toml.
-      ENV["UV_INDEX_KRAKEN_PRIVATE_USERNAME"] = ENV.fetch("HOMEBREW_UV_INDEX_NEXUS_USERNAME", nil)
-      ENV["UV_INDEX_KRAKEN_PRIVATE_PASSWORD"] = ENV.fetch("HOMEBREW_UV_INDEX_NEXUS_PASSWORD", nil)
+      ENV["NETRC"] = ENV.fetch("HOMEBREW_UV_NETRC", nil)
       ENV["UV_SYSTEM_CERTS"] = ENV.fetch("HOMEBREW_UV_SYSTEM_CERTS", nil)
       ENV["SSL_CLIENT_CERT"] = ENV.fetch("HOMEBREW_SSL_CLIENT_CERT", nil)
     end

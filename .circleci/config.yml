@@ -44,8 +44,6 @@ jobs:
             # Configure uv for mutual authentication
             echo 'export HOMEBREW_SSL_CLIENT_CERT=$SSL_CLIENT_CERT' | tee -a $BASH_ENV
             echo 'export HOMEBREW_UV_DEFAULT_INDEX=$UV_DEFAULT_INDEX' | tee -a $BASH_ENV
-            echo 'export HOMEBREW_UV_INDEX_NEXUS_USERNAME=$UV_INDEX_NEXUS_USERNAME' | tee -a $BASH_ENV
-            echo 'export HOMEBREW_UV_INDEX_NEXUS_PASSWORD=$UV_INDEX_NEXUS_PASSWORD' | tee -a $BASH_ENV
             echo 'export HOMEBREW_UV_SYSTEM_CERTS=$UV_SYSTEM_CERTS' | tee -a $BASH_ENV
             # Parse uv.lock to ensure external Nexus url is used
             echo 'export HOMEBREW_CIRCLECI=$CIRCLECI' | tee -a $BASH_ENV
@@ -64,6 +62,14 @@ jobs:
           environment:
             HOMEBREW_DEVELOPER: "1"
           command: |
+            # Homebrew strips password environment variables before running the formula.
+            # uv can read credentials from this private file in the build sandbox instead.
+            export HOMEBREW_UV_NETRC="$(mktemp "${TMPDIR:-/tmp}/homebrew-nexus-netrc.XXXXXX")"
+            trap 'rm -f "$HOMEBREW_UV_NETRC"' EXIT
+            chmod 600 "$HOMEBREW_UV_NETRC"
+            printf 'machine %s login %s password %s\n' \
+              "$KTL_NEXUS_URL" "$UV_INDEX_NEXUS_USERNAME" "$UV_INDEX_NEXUS_PASSWORD" \
+              nexus.ktl.net "$UV_INDEX_NEXUS_USERNAME" "$UV_INDEX_NEXUS_PASSWORD" > "$HOMEBREW_UV_NETRC"
             brew tap octoenergy/tap
             brew trust --tap octoenergy/tap || true
             cp ./kraken-cli.rb "$(brew --repository octoenergy/tap)/kraken-cli.rb"
